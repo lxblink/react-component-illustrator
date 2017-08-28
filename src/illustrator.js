@@ -7,7 +7,8 @@ import recast from 'recast';
 import walk from 'acorn-jsx-walk';
 import {simple as walkNode} from 'acorn-jsx-walk/lib/walk';
 import {parse as parseReactDoc} from 'react-docgen';
-import {find, toRelativeJsPath} from './util';
+import {parse as parseReactDocTS} from 'react-docgen-typescript';
+import {find, toRelativeJsPath, isTs} from './util';
 
 // ---
 
@@ -41,13 +42,23 @@ export default class Illustrator {
       .then(file => toRelativeJsPath(this.store.examplePath, file))
       .then(file => fs.readFileSync(file, {encoding: 'utf-8'}))
       .then(this.record('componentSource'))
-      .then(this.parseComponentDoc)
+      .then((source) => {
+        if (isTs(file)) {
+          return this.parseComponentDocTs(source);
+        } else {
+          return this.parseComponentDoc(source);
+        }
+      })
       .then(this.record('componentDoc'))
     ;
   }
 
   parseExampleDoc(code) {
     return dox.parseComments(code, this.options.doxOptions)[0];
+  }
+
+  parseComponentDocTs(code) {
+    return parseReactDocTS(code);
   }
 
   parseComponentDoc(code) {

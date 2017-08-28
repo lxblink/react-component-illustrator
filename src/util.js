@@ -54,8 +54,12 @@ export function aggregate(items) {
 
 export function toRelativeJsPath(base, file) {
   let jsPath = path.resolve(base, file);
-  if (!/\.js$/.test(jsPath) && !/\.tsx$/.test(jsPath)) {
+  if (!/\.js$/.test(jsPath) && !isTs(jsPath)) {
     jsPath += '.js';
   }
   return jsPath;
+}
+
+export function isTs(path) {
+  return /\.tsx$/.test(path);
 }
